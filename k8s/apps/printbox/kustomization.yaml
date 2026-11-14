@@ -12,6 +12,6 @@ resources:
 # Le pipeline met à jour newTag après les contrôles de sécurité (GIT-02). Jamais « latest ».
 images:
   - name: ghcr.io/kaisoueriemmi/printbox-api
-    newTag: sha-0000000
+    newTag: sha-e4734e2
   - name: ghcr.io/kaisoueriemmi/printbox-web
-    newTag: sha-0000000
+    newTag: sha-e4734e2
