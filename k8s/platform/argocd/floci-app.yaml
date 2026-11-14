@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: floci
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Kaisoueriemmi/devsecops-k8s-platform.git
+    targetRevision: main
+    path: k8s/platform/floci
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: floci
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

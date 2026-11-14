@@ -1,0 +1,7 @@
+.terraform/
+*.tfstate*
+*.age
+.env
+keys.txt
+backend.hcl
+.terraform.lock.hcl

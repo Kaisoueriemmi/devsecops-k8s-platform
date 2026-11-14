@@ -1,0 +1,71 @@
+# Floci : cloud AWS émulé (S3, SQS, KMS, Secrets Manager, DynamoDB). Ce n'est PAS un vrai AWS.
+# v1 : sans persistance, les buckets sont recréés par OpenTofu après un redémarrage du pod.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: floci
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: floci
+  namespace: floci
+spec:
+  type: NodePort
+  selector:
+    app: floci
+  ports:
+    - name: aws
+      port: 4566
+      targetPort: 4566
+      # Accès depuis l'hôte pour OpenTofu : http://<IP d'un nœud>:30566
+      nodePort: 30566
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: floci
+  namespace: floci
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: floci
+  template:
+    metadata:
+      labels:
+        app: floci
+    spec:
+      containers:
+        - name: floci
+          # À épingler par digest en v2 (POL-02 interdit « latest »).
+          image: floci/floci:latest
+          ports:
+            - containerPort: 4566
+          readinessProbe:
+            tcpSocket: {port: 4566}
+            periodSeconds: 5
+          resources:
+            requests: {cpu: 50m, memory: 128Mi}
+            limits: {cpu: 500m, memory: 512Mi}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: floci-s3
+  namespace: floci
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: s3.printbox.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: floci
+                port:
+                  name: aws

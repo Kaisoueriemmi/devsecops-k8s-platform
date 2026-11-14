@@ -1,0 +1,7 @@
+# Copier en backend.hcl et adapter l'adresse (hôte : http://localhost:4566 ; cluster : http://<IP nœud>:30566).
+access_key = "test"
+secret_key = "test"
+endpoints = {
+  s3       = "http://localhost:4566"
+  dynamodb = "http://localhost:4566"
+}

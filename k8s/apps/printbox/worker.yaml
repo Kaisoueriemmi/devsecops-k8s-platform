@@ -1,0 +1,43 @@
+# Même image que l'api, autre point d'entrée : conversion des fichiers en PDF (LibreOffice, Poppler).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: printbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: worker
+          image: ghcr.io/kaisoueriemmi/printbox-api
+          command: [node, dist/worker.js]
+          envFrom:
+            - configMapRef:
+                name: printbox-config
+            - secretRef:
+                name: printbox-secrets
+          env:
+            - name: SCHEDULER_ENABLED
+              value: "false"
+            - name: CONVERSION_CONCURRENCY
+              value: "2"
+          resources:
+            requests: {cpu: 100m, memory: 384Mi}
+            limits: {cpu: "1", memory: 1Gi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]

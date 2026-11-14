@@ -1,0 +1,21 @@
+# Configuration non sensible de PrintBox. Les secrets vivent dans le Secret « printbox-secrets »,
+# créé hors Git par scripts/create-secrets.sh (v1), puis par SOPS + External Secrets (v2).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: printbox-config
+  namespace: printbox
+data:
+  NODE_ENV: production
+  LOG_LEVEL: info
+  PORT: "3001"
+  PUBLIC_WEB_URL: http://printbox.local
+  CORS_ORIGINS: http://printbox.local
+  # Stockage d'objets : bucket S3 émulé par Floci (remplace MinIO, APP-03).
+  S3_ENDPOINT: http://floci.floci.svc.cluster.local:4566
+  # Adresse de Floci vue depuis le réseau local (URL pré-signées pour l'agent Windows).
+  S3_PUBLIC_ENDPOINT: http://s3.printbox.local
+  S3_REGION: us-east-1
+  S3_BUCKET: printbox
+  S3_FORCE_PATH_STYLE: "true"
+  PRICE_ROUNDING_MILLIMES: "100"
